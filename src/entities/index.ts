@@ -1,4 +1,7 @@
-export { Template } from './template';
-export { Document } from './document';
-export { DocumentAttributeField } from './documentAttributeField';
-export { TemplateAttributeField } from './templateAttributeField';
+export { Template, TemplateAttributeField } from './template';
+export {
+  Document,
+  DocumentNumberAttributeField,
+  DocumentStringAttributeField,
+  DocumentDateAttributeField,
+} from './document';

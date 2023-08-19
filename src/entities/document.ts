@@ -6,7 +6,6 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Template } from './template';
-import { DocumentAttributeField } from './documentAttributeField';
 
 @Entity()
 export class Document {
@@ -20,8 +19,65 @@ export class Document {
   template: Template;
 
   @OneToMany(
-    () => DocumentAttributeField,
-    (attributeField) => attributeField.document,
+    () => DocumentNumberAttributeField,
+    (documentNumberAttributeField) => documentNumberAttributeField.document,
   )
-  attributeFields: DocumentAttributeField[];
+  @OneToMany(
+    () => DocumentStringAttributeField,
+    (documentStringAttributeField) => documentStringAttributeField.document,
+  )
+  @OneToMany(
+    () => DocumentDateAttributeField,
+    (documentDateAttributeField) => documentDateAttributeField.document,
+  )
+  attributeFields: Array<
+    | DocumentStringAttributeField
+    | DocumentNumberAttributeField
+    | DocumentDateAttributeField
+  >;
+}
+
+@Entity()
+export class DocumentNumberAttributeField {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column()
+  name: string;
+
+  @Column()
+  value: number;
+
+  @ManyToOne(() => Document, (document) => document.attributeFields)
+  document: Document;
+}
+
+@Entity()
+export class DocumentStringAttributeField {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column()
+  name: string;
+
+  @Column()
+  value: string;
+
+  @ManyToOne(() => Document, (document) => document.attributeFields)
+  document: Document;
+}
+
+@Entity()
+export class DocumentDateAttributeField {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column()
+  name: string;
+
+  @Column()
+  value: Date;
+
+  @ManyToOne(() => Document, (document) => document.attributeFields)
+  document: Document;
 }

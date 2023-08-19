@@ -5,7 +5,9 @@ import {
   Template,
   TemplateAttributeField,
   Document,
-  DocumentAttributeField,
+  DocumentDateAttributeField,
+  DocumentNumberAttributeField,
+  DocumentStringAttributeField,
 } from '../../entities';
 
 @injectable()
@@ -31,7 +33,9 @@ export class DatabaseService {
         Template,
         TemplateAttributeField,
         Document,
-        DocumentAttributeField,
+        DocumentDateAttributeField,
+        DocumentNumberAttributeField,
+        DocumentStringAttributeField,
       ],
     });
   }

@@ -1,6 +1,6 @@
 import { inject, injectable } from 'inversify';
 import { IDocumentsService, INVERSIFY_TYPES } from '../../types';
-import { Document, DocumentAttributeField } from '../../entities';
+import { Document } from '../../entities';
 import { DatabaseService } from '../DatabaseService';
 import { DocumentDto } from '../../dto';
 
