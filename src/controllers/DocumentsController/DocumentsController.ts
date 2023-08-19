@@ -1,11 +1,13 @@
 import { Request, Response, NextFunction } from 'express';
 import { inject } from 'inversify';
 import {
+  HTTPError,
   IDocumentsController,
   ILoggerService,
   INVERSIFY_TYPES,
 } from '../../types';
 import { BaseController } from '../BaseController';
+import { DocumentsService } from '../../services';
 
 export class DocumentsController
   extends BaseController
@@ -13,6 +15,8 @@ export class DocumentsController
 {
   constructor(
     @inject(INVERSIFY_TYPES.LoggerService) loggerService: ILoggerService,
+    @inject(INVERSIFY_TYPES.DocumentsService)
+    private documentsService: DocumentsService,
   ) {
     super(loggerService);
 
@@ -44,12 +48,26 @@ export class DocumentsController
     ]);
   }
 
-  create(req: Request, res: Response, next: NextFunction) {
-    this.sendResponse(res, 200, 'Created document');
+  async create({ body }: Request, res: Response, next: NextFunction) {
+    const result = await this.documentsService.create(body);
+
+    if (!result) {
+      return next(
+        new HTTPError(
+          422,
+          'Document with such params already exists',
+          'Document creation',
+        ),
+      );
+    }
+
+    this.sendResponse(res, 200, result);
   }
 
-  read(req: Request, res: Response, next: NextFunction) {
-    this.sendResponse(res, 200, 'Read documents');
+  async read(req: Request, res: Response, next: NextFunction) {
+    const result = await this.documentsService.read();
+
+    this.sendResponse(res, 200, result);
   }
 
   update(req: Request, res: Response, next: NextFunction) {

@@ -10,6 +10,7 @@ import { BaseController } from '../BaseController';
 import { TemplatesService } from '../../services';
 import { ValidationMiddleware } from '../../middlewares';
 import { TemplateDto } from '../../dto';
+import { generateError } from '../../utils';
 
 export class TemplatesController
   extends BaseController
@@ -39,24 +40,32 @@ export class TemplatesController
   }
 
   async create({ body }: Request, res: Response, next: NextFunction) {
-    const result = await this.templatesService.create(body);
+    try {
+      const result = await this.templatesService.create(body);
 
-    if (!result) {
-      return next(
-        new HTTPError(
-          422,
-          'Template with such name already exists',
-          'Template creation',
-        ),
-      );
+      if (!result) {
+        return next(
+          new HTTPError(
+            422,
+            'Template with such name already exists',
+            'Template creation',
+          ),
+        );
+      }
+
+      this.sendResponse(res, 200, result);
+    } catch (error) {
+      next(generateError('create template', error));
     }
-
-    this.sendResponse(res, 200, result);
   }
 
   async read(req: Request, res: Response, next: NextFunction) {
-    const result = await this.templatesService.read();
+    try {
+      const result = await this.templatesService.read();
 
-    this.sendResponse(res, 200, result);
+      this.sendResponse(res, 200, result);
+    } catch (error) {
+      next(generateError('read templates', error));
+    }
   }
 }

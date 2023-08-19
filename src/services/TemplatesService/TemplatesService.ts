@@ -22,39 +22,43 @@ export class TemplatesService implements ITemplatesService {
   async create({
     name,
     attributeFields,
-  }: TemplateDto): Promise<null | Template> {
-    const template = await this.databaseService.client
-      .getRepository(Template)
-      .findOne({
-        where: {
-          name,
-        },
+  }: TemplateDto): Promise<Template | null> {
+    try {
+      const template = await this.databaseService.client
+        .getRepository(Template)
+        .findOne({
+          where: {
+            name,
+          },
+        });
+
+      if (template) {
+        return null;
+      }
+
+      const templateAttributeFields = attributeFields.map(({ name, type }) => {
+        const field = new TemplateAttributeField();
+
+        field.name = name;
+        field.type = type;
+
+        return field;
       });
 
-    if (template) {
-      return null;
+      const templateModel = new Template();
+
+      templateModel.name = name;
+      templateModel.attributeFields = templateAttributeFields;
+
+      await this.databaseService.client
+        .getRepository(TemplateAttributeField)
+        .save(templateAttributeFields);
+
+      return this.databaseService.client
+        .getRepository(Template)
+        .save(templateModel);
+    } catch (error) {
+      throw new Error('An error occured while creating entities');
     }
-
-    const templateAttributeFields = attributeFields.map(({ name, type }) => {
-      const field = new TemplateAttributeField();
-
-      field.name = name;
-      field.type = type;
-
-      return field;
-    });
-
-    const templateModel = new Template();
-
-    templateModel.name = name;
-    templateModel.attributeFields = templateAttributeFields;
-
-    await this.databaseService.client
-      .getRepository(TemplateAttributeField)
-      .save(templateAttributeFields);
-
-    return this.databaseService.client
-      .getRepository(Template)
-      .save(templateModel);
   }
 }

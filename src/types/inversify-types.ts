@@ -6,6 +6,7 @@ export const INVERSIFY_TYPES = {
   ConfigService: Symbol.for('ConfigService'),
   DatabaseService: Symbol.for('DatabaseService'),
   TemplatesService: Symbol.for('TemplatesService'),
+  DocumentsService: Symbol.for('DocumentsService'),
   TemplatesController: Symbol.for('TemplatesController'),
   DocumentsController: Symbol.for('DocumentsController'),
 };

@@ -13,6 +13,7 @@ import {
 import {
   ConfigService,
   DatabaseService,
+  DocumentsService,
   LoggerService,
   TemplatesService,
 } from './services';
@@ -39,6 +40,9 @@ export const appBindings = new ContainerModule((bind: interfaces.Bind) => {
     .inSingletonScope();
   bind<TemplatesService>(INVERSIFY_TYPES.TemplatesService)
     .to(TemplatesService)
+    .inSingletonScope();
+  bind<DocumentsService>(INVERSIFY_TYPES.DocumentsService)
+    .to(DocumentsService)
     .inSingletonScope();
   bind<App>(INVERSIFY_TYPES.Application).to(App);
 });

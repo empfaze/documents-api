@@ -7,21 +7,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Document } from './document';
-
-@Entity()
-export class AttributeField {
-  @PrimaryGeneratedColumn()
-  id: number;
-
-  @Column()
-  name: string;
-
-  @Column()
-  type: string;
-
-  @ManyToMany(() => Template, (template) => template.attributeFields)
-  templates: Template[];
-}
+import { TemplateAttributeField } from './templateAttributeField';
 
 @Entity()
 export class Template {
@@ -32,11 +18,11 @@ export class Template {
   name: string;
 
   @ManyToMany(
-    () => AttributeField,
+    () => TemplateAttributeField,
     (attributeField) => attributeField.templates,
   )
   @JoinTable()
-  attributeFields: AttributeField[];
+  attributeFields: TemplateAttributeField[];
 
   @OneToMany(() => Document, (document) => document.template)
   documents: Document[];
