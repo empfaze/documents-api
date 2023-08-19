@@ -1,0 +1,1 @@
+export { ValidationMiddleware } from './ValidationMiddleware';

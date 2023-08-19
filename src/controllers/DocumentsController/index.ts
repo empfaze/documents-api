@@ -1,0 +1,1 @@
+export { DocumentsController } from './DocumentsController';
