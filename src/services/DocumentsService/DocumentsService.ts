@@ -6,6 +6,7 @@ import {
   Template,
   DocumentDateAttributeField,
   DocumentStringAttributeField,
+  TemplateAttributeField,
 } from '../../entities';
 import { DatabaseService } from '../DatabaseService';
 import {
@@ -39,6 +40,30 @@ const mapAttributeTypeToEntity = ({ type }: UpdateDocumentAttributeField) => {
       return DocumentDateAttributeField;
   }
 };
+
+const areAttributeFieldsValid = (
+  templateAttributes: TemplateAttributeField[],
+  documentAttributes: CreateDocumentAttributeField[],
+) =>
+  documentAttributes.every(({ name, value }) => {
+    let isValidAttribute = false;
+
+    for (const attribute of templateAttributes) {
+      if (name === attribute.name) {
+        if (
+          typeof value === 'string' &&
+          attribute.type === 'date' &&
+          Date.parse(value)
+        ) {
+          isValidAttribute = true;
+        } else if (typeof value === attribute.type) {
+          isValidAttribute = true;
+        }
+      }
+    }
+
+    return isValidAttribute;
+  });
 
 @injectable()
 export class DocumentsService implements IDocumentsService {
@@ -83,6 +108,15 @@ export class DocumentsService implements IDocumentsService {
 
       if (attributeFields.length !== existingTemplate.attributeFields.length) {
         throw new Error('Incorrect number of attribute fields');
+      }
+
+      if (
+        !areAttributeFieldsValid(
+          existingTemplate.attributeFields,
+          attributeFields,
+        )
+      ) {
+        throw new Error('Some of attribute field values have incorrect types');
       }
 
       const numberAttributeFields: DocumentNumberAttributeField[] = [];
