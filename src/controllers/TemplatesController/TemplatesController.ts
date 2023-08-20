@@ -26,12 +26,14 @@ export class TemplatesController
     this.bindRoutes([
       {
         path: '/',
+        pathname: '/templates',
         method: 'get',
         handler: this.read,
         middlewares: [],
       },
       {
         path: '/',
+        pathname: '/templates',
         method: 'post',
         handler: this.create,
         middlewares: [new ValidationMiddleware(TemplateDto)],

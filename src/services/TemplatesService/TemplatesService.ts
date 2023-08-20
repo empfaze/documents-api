@@ -24,7 +24,7 @@ export class TemplatesService implements ITemplatesService {
     attributeFields,
   }: TemplateDto): Promise<Template | null> {
     try {
-      const template = await this.databaseService.client
+      const existingTemplate = await this.databaseService.client
         .getRepository(Template)
         .findOne({
           where: {
@@ -32,27 +32,46 @@ export class TemplatesService implements ITemplatesService {
           },
         });
 
-      if (template) {
+      if (existingTemplate) {
         return null;
       }
 
-      const templateAttributeFields = attributeFields.map(({ name, type }) => {
-        const field = new TemplateAttributeField();
+      const existingAttributeFields: TemplateAttributeField[] = [];
+      const newAttributeFields: TemplateAttributeField[] = [];
 
-        field.name = name;
-        field.type = type;
+      for (const attribute of attributeFields) {
+        const existingAttributeField = await this.databaseService.client
+          .getRepository(TemplateAttributeField)
+          .findOne({
+            where: {
+              name: attribute.name,
+              type: attribute.type,
+            },
+          });
 
-        return field;
-      });
+        if (existingAttributeField) {
+          existingAttributeFields.push(existingAttributeField);
+        } else {
+          const newAttributeField = new TemplateAttributeField();
+
+          newAttributeField.name = attribute.name;
+          newAttributeField.type = attribute.type;
+
+          newAttributeFields.push(newAttributeField);
+        }
+      }
 
       const templateModel = new Template();
 
       templateModel.name = name;
-      templateModel.attributeFields = templateAttributeFields;
+      templateModel.attributeFields = [
+        ...existingAttributeFields,
+        ...newAttributeFields,
+      ];
 
       await this.databaseService.client
         .getRepository(TemplateAttributeField)
-        .save(templateAttributeFields);
+        .save(newAttributeFields);
 
       return this.databaseService.client
         .getRepository(Template)

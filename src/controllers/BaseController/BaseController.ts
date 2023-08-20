@@ -21,8 +21,8 @@ export abstract class BaseController {
   }
 
   protected bindRoutes(routes: IControllerRoute[]) {
-    routes.forEach(({ method, path, handler, middlewares }) => {
-      this.logger.log(`[${method}] ${path}`);
+    routes.forEach(({ method, path, pathname, handler, middlewares }) => {
+      this.logger.log(`[${method}] ${pathname}`);
 
       const mainHandler = handler.bind(this);
 

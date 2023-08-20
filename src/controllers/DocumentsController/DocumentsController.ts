@@ -8,6 +8,7 @@ import {
 } from '../../types';
 import { BaseController } from '../BaseController';
 import { DocumentsService } from '../../services';
+import { generateError } from '../../utils';
 
 export class DocumentsController
   extends BaseController
@@ -23,24 +24,28 @@ export class DocumentsController
     this.bindRoutes([
       {
         path: '/',
+        pathname: '/documents',
         method: 'get',
         handler: this.read,
         middlewares: [],
       },
       {
         path: '/',
+        pathname: '/documents',
         method: 'post',
         handler: this.create,
         middlewares: [],
       },
       {
         path: '/',
+        pathname: '/documents',
         method: 'put',
         handler: this.update,
         middlewares: [],
       },
       {
         path: '/:id',
+        pathname: '/documents/:id',
         method: 'delete',
         handler: this.delete,
         middlewares: [],
@@ -65,9 +70,13 @@ export class DocumentsController
   }
 
   async read(req: Request, res: Response, next: NextFunction) {
-    const result = await this.documentsService.read();
+    try {
+      const result = await this.documentsService.read();
 
-    this.sendResponse(res, 200, result);
+      this.sendResponse(res, 200, result);
+    } catch (error) {
+      next(generateError('read documents', error));
+    }
   }
 
   update(req: Request, res: Response, next: NextFunction) {
