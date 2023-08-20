@@ -11,18 +11,14 @@ export class TemplatesService implements ITemplatesService {
     private databaseService: DatabaseService,
   ) {}
 
-  read() {
-    return this.databaseService.client.getRepository(Template).find({
-      relations: {
-        attributeFields: true,
-      },
-    });
+  read(): Promise<Template[]> {
+    return this.databaseService.client.getRepository(Template).find();
   }
 
   async create({
     name,
     attributeFields,
-  }: TemplateDto): Promise<Template | null> {
+  }: TemplateDto): Promise<Template | undefined> {
     try {
       const existingTemplate = await this.databaseService.client
         .getRepository(Template)
@@ -33,7 +29,7 @@ export class TemplatesService implements ITemplatesService {
         });
 
       if (existingTemplate) {
-        return null;
+        throw new Error('Template with such name already exists');
       }
 
       const existingAttributeFields: TemplateAttributeField[] = [];
@@ -61,10 +57,10 @@ export class TemplatesService implements ITemplatesService {
         }
       }
 
-      const templateModel = new Template();
+      const template = new Template();
 
-      templateModel.name = name;
-      templateModel.attributeFields = [
+      template.name = name;
+      template.attributeFields = [
         ...existingAttributeFields,
         ...newAttributeFields,
       ];
@@ -73,11 +69,9 @@ export class TemplatesService implements ITemplatesService {
         .getRepository(TemplateAttributeField)
         .save(newAttributeFields);
 
-      return this.databaseService.client
-        .getRepository(Template)
-        .save(templateModel);
+      return this.databaseService.client.getRepository(Template).save(template);
     } catch (error) {
-      throw new Error('An error occured while creating entities');
+      throw new Error((error as Error).message);
     }
   }
 }

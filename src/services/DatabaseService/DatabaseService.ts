@@ -28,7 +28,7 @@ export class DatabaseService {
       password: this.configService.get('PASSWORD'),
       database: this.configService.get('DB_NAME'),
       synchronize: true,
-      logging: true,
+      logging: false,
       entities: [
         Template,
         TemplateAttributeField,

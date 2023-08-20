@@ -7,34 +7,33 @@ import {
   IsString,
   Validate,
   ValidateNested,
+  ValidationArguments,
+  ValidatorConstraint,
   ValidatorConstraintInterface,
 } from 'class-validator';
 
+@ValidatorConstraint()
 export class IsAttributeValue implements ValidatorConstraintInterface {
-  validate(value: any) {
-    if (
-      typeof value !== 'string' ||
-      typeof value !== 'number' ||
-      !((value as any) instanceof Date)
-    ) {
-      return false;
+  validate(value: any, args: ValidationArguments) {
+    if (args.constraints.includes(typeof value)) {
+      return true;
     }
 
-    return true;
+    return false;
   }
 }
 
-class AttributeField {
+export class DocumentAttributeField {
   @IsDefined({ message: 'Attribute name must be defined' })
   @IsString({ message: 'Attribute name must be a string' })
   name: string;
 
   @IsDefined({ message: 'Attribute value must be defined' })
-  @Validate(IsAttributeValue, {
+  @Validate(IsAttributeValue, ['string', 'number'], {
     message:
       'Value must be one of the following types: "string", "number", "date"',
   })
-  value: string | Date | number;
+  value: string | number;
 }
 
 export class DocumentDto {
@@ -52,6 +51,6 @@ export class DocumentDto {
     message: 'Attribute fields must contain at least one field',
   })
   @ValidateNested({ each: true })
-  @Type(() => AttributeField)
-  attributeFields: AttributeField[];
+  @Type(() => DocumentAttributeField)
+  attributeFields: DocumentAttributeField[];
 }

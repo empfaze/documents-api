@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { inject } from 'inversify';
 import {
-  HTTPError,
   ILoggerService,
   INVERSIFY_TYPES,
   ITemplatesController,
@@ -43,19 +42,9 @@ export class TemplatesController
 
   async create({ body }: Request, res: Response, next: NextFunction) {
     try {
-      const result = await this.templatesService.create(body);
+      const template = await this.templatesService.create(body);
 
-      if (!result) {
-        return next(
-          new HTTPError(
-            422,
-            'Template with such name already exists',
-            'Template creation',
-          ),
-        );
-      }
-
-      this.sendResponse(res, 200, result);
+      this.sendResponse(res, 200, template);
     } catch (error) {
       next(generateError('create template', error));
     }
@@ -63,9 +52,9 @@ export class TemplatesController
 
   async read(req: Request, res: Response, next: NextFunction) {
     try {
-      const result = await this.templatesService.read();
+      const templates = await this.templatesService.read();
 
-      this.sendResponse(res, 200, result);
+      this.sendResponse(res, 200, templates);
     } catch (error) {
       next(generateError('read templates', error));
     }

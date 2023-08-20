@@ -15,26 +15,29 @@ export class Document {
   @Column()
   name: string;
 
-  @ManyToOne(() => Template, (template) => template.documents)
+  @ManyToOne(() => Template, (template) => template.documents, { eager: true })
   template: Template;
 
   @OneToMany(
     () => DocumentNumberAttributeField,
     (documentNumberAttributeField) => documentNumberAttributeField.document,
+    { eager: true },
   )
+  numberAttributeFields: DocumentNumberAttributeField[];
+
   @OneToMany(
     () => DocumentStringAttributeField,
     (documentStringAttributeField) => documentStringAttributeField.document,
+    { eager: true },
   )
+  stringAttributeFields: DocumentStringAttributeField[];
+
   @OneToMany(
     () => DocumentDateAttributeField,
     (documentDateAttributeField) => documentDateAttributeField.document,
+    { eager: true },
   )
-  attributeFields: Array<
-    | DocumentStringAttributeField
-    | DocumentNumberAttributeField
-    | DocumentDateAttributeField
-  >;
+  dateAttributeFields: DocumentDateAttributeField[];
 }
 
 @Entity()
@@ -48,7 +51,9 @@ export class DocumentNumberAttributeField {
   @Column()
   value: number;
 
-  @ManyToOne(() => Document, (document) => document.attributeFields)
+  @ManyToOne(() => Document, (document) => document.numberAttributeFields, {
+    onDelete: 'CASCADE',
+  })
   document: Document;
 }
 
@@ -63,7 +68,9 @@ export class DocumentStringAttributeField {
   @Column()
   value: string;
 
-  @ManyToOne(() => Document, (document) => document.attributeFields)
+  @ManyToOne(() => Document, (document) => document.stringAttributeFields, {
+    onDelete: 'CASCADE',
+  })
   document: Document;
 }
 
@@ -78,6 +85,8 @@ export class DocumentDateAttributeField {
   @Column()
   value: Date;
 
-  @ManyToOne(() => Document, (document) => document.attributeFields)
+  @ManyToOne(() => Document, (document) => document.dateAttributeFields, {
+    onDelete: 'CASCADE',
+  })
   document: Document;
 }

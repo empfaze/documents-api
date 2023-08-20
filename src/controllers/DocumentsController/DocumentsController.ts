@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { inject } from 'inversify';
 import {
-  HTTPError,
   IDocumentsController,
   ILoggerService,
   INVERSIFY_TYPES,
@@ -9,6 +8,26 @@ import {
 import { BaseController } from '../BaseController';
 import { DocumentsService } from '../../services';
 import { generateError } from '../../utils';
+import { ValidationMiddleware } from '../../middlewares';
+import { DocumentDto } from '../../dto';
+import { Document } from '../../entities';
+
+const transformDocumentResponse = (document: Partial<Document>) => {
+  const transformedDocument = {
+    ...document,
+    attributeFields: [
+      ...document.dateAttributeFields!,
+      ...document.numberAttributeFields!,
+      ...document.stringAttributeFields!,
+    ],
+  };
+
+  delete transformedDocument.dateAttributeFields;
+  delete transformedDocument.numberAttributeFields;
+  delete transformedDocument.stringAttributeFields;
+
+  return transformedDocument;
+};
 
 export class DocumentsController
   extends BaseController
@@ -34,7 +53,7 @@ export class DocumentsController
         pathname: '/documents',
         method: 'post',
         handler: this.create,
-        middlewares: [],
+        middlewares: [new ValidationMiddleware(DocumentDto)],
       },
       {
         path: '/',
@@ -54,26 +73,24 @@ export class DocumentsController
   }
 
   async create({ body }: Request, res: Response, next: NextFunction) {
-    const result = await this.documentsService.create(body);
+    try {
+      const document = await this.documentsService.create(body);
 
-    if (!result) {
-      return next(
-        new HTTPError(
-          422,
-          'Document with such params already exists',
-          'Document creation',
-        ),
-      );
+      this.sendResponse(res, 200, transformDocumentResponse(document));
+    } catch (error) {
+      next(generateError('create document', error));
     }
-
-    this.sendResponse(res, 200, result);
   }
 
   async read(req: Request, res: Response, next: NextFunction) {
     try {
-      const result = await this.documentsService.read();
+      const documents = await this.documentsService.read();
 
-      this.sendResponse(res, 200, result);
+      this.sendResponse(
+        res,
+        200,
+        documents.map((document) => transformDocumentResponse(document)),
+      );
     } catch (error) {
       next(generateError('read documents', error));
     }
@@ -83,7 +100,13 @@ export class DocumentsController
     this.sendResponse(res, 200, 'Updated document');
   }
 
-  delete({ params }: Request, res: Response, next: NextFunction) {
-    this.sendResponse(res, 200, `Deleted document with id = ${params.id}`);
+  async delete({ params: { id } }: Request, res: Response, next: NextFunction) {
+    try {
+      await this.documentsService.delete(id);
+
+      this.sendResponse(res, 200, `Document with id=${id} has been deleted`);
+    } catch (error) {
+      next(generateError('delete document', error));
+    }
   }
 }

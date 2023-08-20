@@ -8,7 +8,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 
-class AttributeField {
+class TemplateAttributeField {
   @IsDefined({ message: 'Attribute name must be defined' })
   @IsString({ message: 'Attribute name must be a string' })
   name: string;
@@ -33,6 +33,6 @@ export class TemplateDto {
     message: 'Attribute fields must contain at least one field',
   })
   @ValidateNested({ each: true })
-  @Type(() => AttributeField)
-  attributeFields: AttributeField[];
+  @Type(() => TemplateAttributeField)
+  attributeFields: TemplateAttributeField[];
 }
