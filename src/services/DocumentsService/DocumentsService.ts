@@ -8,9 +8,14 @@ import {
   DocumentStringAttributeField,
 } from '../../entities';
 import { DatabaseService } from '../DatabaseService';
-import { DocumentAttributeField, DocumentDto } from '../../dto';
+import {
+  CreateDocumentAttributeField,
+  CreateDocumentDto,
+  UpdateDocumentAttributeField,
+  UpdateDocumentDto,
+} from '../../dto';
 
-const mapAttributeValueToEntity = ({ value }: DocumentAttributeField) => {
+const mapAttributeValueToEntity = ({ value }: CreateDocumentAttributeField) => {
   if (typeof value === 'number') {
     return DocumentNumberAttributeField;
   }
@@ -21,6 +26,17 @@ const mapAttributeValueToEntity = ({ value }: DocumentAttributeField) => {
 
   if (typeof value === 'string') {
     return DocumentStringAttributeField;
+  }
+};
+
+const mapAttributeTypeToEntity = ({ type }: UpdateDocumentAttributeField) => {
+  switch (type) {
+    case 'number':
+      return DocumentNumberAttributeField;
+    case 'string':
+      return DocumentStringAttributeField;
+    case 'date':
+      return DocumentDateAttributeField;
   }
 };
 
@@ -39,7 +55,7 @@ export class DocumentsService implements IDocumentsService {
     name,
     templateId,
     attributeFields,
-  }: DocumentDto): Promise<Document> {
+  }: CreateDocumentDto): Promise<Document> {
     try {
       const existingTemplate = await this.databaseService.client
         .getRepository(Template)
@@ -47,13 +63,22 @@ export class DocumentsService implements IDocumentsService {
           where: {
             id: templateId,
           },
-          relations: {
-            attributeFields: true,
-          },
         });
 
       if (!existingTemplate) {
         throw new Error('Template with such id does not exist');
+      }
+
+      const existingDocument = await this.databaseService.client
+        .getRepository(Document)
+        .findOne({
+          where: {
+            name,
+          },
+        });
+
+      if (existingDocument) {
+        throw new Error('Document with such name already exists');
       }
 
       if (attributeFields.length !== existingTemplate.attributeFields.length) {
@@ -110,11 +135,91 @@ export class DocumentsService implements IDocumentsService {
   }
 
   async update({
-    name,
+    documentId,
     templateId,
+    name,
     attributeFields,
-  }: DocumentDto): Promise<Document | null> {
-    return null;
+  }: UpdateDocumentDto): Promise<Document> {
+    try {
+      if (!name && !attributeFields) {
+        throw new Error(
+          'You must enter either new name or new attribute fields to update the document',
+        );
+      }
+
+      const existingTemplate = await this.databaseService.client
+        .getRepository(Template)
+        .findOne({
+          where: {
+            id: templateId,
+          },
+        });
+
+      if (!existingTemplate) {
+        throw new Error('Template with such id does not exist');
+      }
+
+      const existingDocument = await this.databaseService.client
+        .getRepository(Document)
+        .findOne({
+          where: {
+            id: documentId,
+          },
+        });
+
+      if (!existingDocument) {
+        throw new Error('Document with such name does not exist');
+      }
+
+      if (attributeFields) {
+        for (const attribute of attributeFields) {
+          const AttributeFieldEntity = mapAttributeTypeToEntity(attribute)!;
+
+          const existingAttributeField = await this.databaseService.client
+            .getRepository(AttributeFieldEntity)
+            .findOne({
+              where: {
+                id: attribute.id,
+              },
+              relations: {
+                document: true,
+              },
+            });
+
+          if (!existingAttributeField) {
+            throw new Error('Some of the entered fields do not exist');
+          }
+
+          if (existingAttributeField.document.id !== documentId) {
+            throw new Error('Attribute field does not belong to this document');
+          }
+
+          await this.databaseService.client
+            .createQueryBuilder()
+            .update(AttributeFieldEntity)
+            .set({ value: attribute.value })
+            .where('id = :id', { id: attribute.id })
+            .execute();
+        }
+      }
+
+      if (name) {
+        await this.databaseService.client
+          .createQueryBuilder()
+          .update(Document)
+          .set({ name })
+          .where('id = :id', { id: documentId })
+          .execute();
+      }
+
+      return this.databaseService.client.getRepository(Document).findOne({
+        where: {
+          id: documentId,
+        },
+      }) as Promise<Document>;
+    } catch (error) {
+      throw new Error((error as Error).message);
+    }
   }
 
   async delete(id: string): Promise<void> {

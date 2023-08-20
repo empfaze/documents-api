@@ -9,7 +9,7 @@ import { BaseController } from '../BaseController';
 import { DocumentsService } from '../../services';
 import { generateError } from '../../utils';
 import { ValidationMiddleware } from '../../middlewares';
-import { DocumentDto } from '../../dto';
+import { CreateDocumentDto, UpdateDocumentDto } from '../../dto';
 import { Document } from '../../entities';
 
 const transformDocumentResponse = (document: Partial<Document>) => {
@@ -53,14 +53,14 @@ export class DocumentsController
         pathname: '/documents',
         method: 'post',
         handler: this.create,
-        middlewares: [new ValidationMiddleware(DocumentDto)],
+        middlewares: [new ValidationMiddleware(CreateDocumentDto)],
       },
       {
         path: '/',
         pathname: '/documents',
-        method: 'put',
+        method: 'patch',
         handler: this.update,
-        middlewares: [],
+        middlewares: [new ValidationMiddleware(UpdateDocumentDto)],
       },
       {
         path: '/:id',
@@ -96,8 +96,14 @@ export class DocumentsController
     }
   }
 
-  update(req: Request, res: Response, next: NextFunction) {
-    this.sendResponse(res, 200, 'Updated document');
+  async update({ body }: Request, res: Response, next: NextFunction) {
+    try {
+      const document = await this.documentsService.update(body);
+
+      this.sendResponse(res, 200, transformDocumentResponse(document));
+    } catch (error) {
+      next(generateError('update document', error));
+    }
   }
 
   async delete({ params: { id } }: Request, res: Response, next: NextFunction) {

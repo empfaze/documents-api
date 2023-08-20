@@ -1,9 +1,9 @@
 import { Document } from '../entities';
-import { DocumentDto } from '../dto';
+import { CreateDocumentDto, UpdateDocumentDto } from '../dto';
 
 export interface IDocumentsService {
-  create: (dto: DocumentDto) => Promise<Document>;
+  create: (dto: CreateDocumentDto) => Promise<Document>;
   read: () => Promise<Document[]>;
-  update: (dto: DocumentDto) => void;
+  update: (dto: UpdateDocumentDto) => Promise<Document>;
   delete: (id: string) => void;
 }
