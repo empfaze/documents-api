@@ -15,7 +15,7 @@ import {
 } from 'class-validator';
 
 @ValidatorConstraint()
-export class IsAttributeValue implements ValidatorConstraintInterface {
+export class IsNecessaryType implements ValidatorConstraintInterface {
   validate(value: any, args: ValidationArguments) {
     if (args.constraints.includes(typeof value)) {
       return true;
@@ -31,7 +31,7 @@ export class CreateDocumentAttributeField {
   name: string;
 
   @IsDefined({ message: 'Attribute value must be defined' })
-  @Validate(IsAttributeValue, ['string', 'number'], {
+  @Validate(IsNecessaryType, ['string', 'number'], {
     message:
       'Value must be one of the following types: "string", "number", "date"',
   })
@@ -63,7 +63,7 @@ export class UpdateDocumentAttributeField {
   id: number;
 
   @IsDefined({ message: 'Attribute value must be defined' })
-  @Validate(IsAttributeValue, ['string', 'number'], {
+  @Validate(IsNecessaryType, ['string', 'number'], {
     message:
       'Value must be one of the following types: "string", "number", "date"',
   })

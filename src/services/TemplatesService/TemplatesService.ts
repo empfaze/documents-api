@@ -15,10 +15,7 @@ export class TemplatesService implements ITemplatesService {
     return this.databaseService.client.getRepository(Template).find();
   }
 
-  async create({
-    name,
-    attributeFields,
-  }: TemplateDto): Promise<Template | undefined> {
+  async create({ name, attributeFields }: TemplateDto): Promise<Template> {
     try {
       const existingTemplate = await this.databaseService.client
         .getRepository(Template)
