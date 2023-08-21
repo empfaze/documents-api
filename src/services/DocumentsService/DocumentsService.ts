@@ -97,11 +97,24 @@ export class DocumentsService implements IDocumentsService {
             );
             break;
         }
+      }
 
+      if (numberAttributeFields.length) {
         await this.databaseService.client
-          .getRepository(AttributeFieldEntity)
-          // @ts-ignore
-          .save(attributeField);
+          .getRepository(DocumentNumberAttributeField)
+          .save(numberAttributeFields);
+      }
+
+      if (stringAttributeFields.length) {
+        await this.databaseService.client
+          .getRepository(DocumentStringAttributeField)
+          .save(stringAttributeFields);
+      }
+
+      if (dateAttributeFields.length) {
+        await this.databaseService.client
+          .getRepository(DocumentDateAttributeField)
+          .save(dateAttributeFields);
       }
 
       const document = new Document();
