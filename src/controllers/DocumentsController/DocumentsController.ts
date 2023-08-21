@@ -7,27 +7,9 @@ import {
 } from '../../types';
 import { BaseController } from '../BaseController';
 import { DocumentsService } from '../../services';
-import { generateError } from '../../utils';
+import { generateError, transformDocumentResponse } from '../../utils';
 import { ValidationMiddleware } from '../../middlewares';
 import { CreateDocumentDto, UpdateDocumentDto } from '../../dto';
-import { Document } from '../../entities';
-
-const transformDocumentResponse = (document: Partial<Document>) => {
-  const transformedDocument = {
-    ...document,
-    attributeFields: [
-      ...document.dateAttributeFields!,
-      ...document.numberAttributeFields!,
-      ...document.stringAttributeFields!,
-    ],
-  };
-
-  delete transformedDocument.dateAttributeFields;
-  delete transformedDocument.numberAttributeFields;
-  delete transformedDocument.stringAttributeFields;
-
-  return transformedDocument;
-};
 
 export class DocumentsController
   extends BaseController

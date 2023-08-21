@@ -6,64 +6,14 @@ import {
   Template,
   DocumentDateAttributeField,
   DocumentStringAttributeField,
-  TemplateAttributeField,
 } from '../../entities';
 import { DatabaseService } from '../DatabaseService';
+import { CreateDocumentDto, UpdateDocumentDto } from '../../dto';
 import {
-  CreateDocumentAttributeField,
-  CreateDocumentDto,
-  UpdateDocumentAttributeField,
-  UpdateDocumentDto,
-} from '../../dto';
-
-const mapAttributeValueToEntity = ({ value }: CreateDocumentAttributeField) => {
-  if (typeof value === 'number') {
-    return DocumentNumberAttributeField;
-  }
-
-  if (typeof value === 'string' && Date.parse(value)) {
-    return DocumentDateAttributeField;
-  }
-
-  if (typeof value === 'string') {
-    return DocumentStringAttributeField;
-  }
-};
-
-const mapAttributeTypeToEntity = ({ type }: UpdateDocumentAttributeField) => {
-  switch (type) {
-    case 'number':
-      return DocumentNumberAttributeField;
-    case 'string':
-      return DocumentStringAttributeField;
-    case 'date':
-      return DocumentDateAttributeField;
-  }
-};
-
-const areAttributeFieldsValid = (
-  templateAttributes: TemplateAttributeField[],
-  documentAttributes: CreateDocumentAttributeField[],
-) =>
-  documentAttributes.every(({ name, value }) => {
-    let isValidAttribute = false;
-
-    for (const attribute of templateAttributes) {
-      if (name === attribute.name) {
-        if (
-          typeof value === 'string' &&
-          attribute.type === 'date' &&
-          Date.parse(value)
-        ) {
-          isValidAttribute = true;
-        } else if (typeof value === attribute.type) {
-          isValidAttribute = true;
-        }
-      }
-    }
-
-    return isValidAttribute;
-  });
+  areAttributeFieldsValid,
+  mapAttributeTypeToEntity,
+  mapAttributeValueToEntity,
+} from '../../utils';
 
 @injectable()
 export class DocumentsService implements IDocumentsService {

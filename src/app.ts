@@ -17,7 +17,7 @@ export class App {
     @inject(INVERSIFY_TYPES.ExceptionFilter)
     private exceptionFilter: IExceptionFilter,
     @inject(INVERSIFY_TYPES.DatabaseService)
-    private prismaService: DatabaseService,
+    private databaseService: DatabaseService,
     @inject(INVERSIFY_TYPES.TemplatesController)
     private templatesController: TemplatesController,
     @inject(INVERSIFY_TYPES.DocumentsController)
@@ -49,7 +49,7 @@ export class App {
     this.useRoutes();
     this.useExceptionFilters();
 
-    await this.prismaService.connect();
+    await this.databaseService.connect();
 
     this.server = this.app.listen(this.port);
     this.logger.log(`Server is running on http://127.0.0.1:${this.port}`);
