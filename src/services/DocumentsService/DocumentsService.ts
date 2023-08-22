@@ -11,6 +11,7 @@ import { DatabaseService } from '../DatabaseService';
 import { CreateDocumentDto, UpdateDocumentDto } from '../../dto';
 import {
   areAttributeFieldsValid,
+  isAttributeValueValid,
   mapAttributeTypeToEntity,
   mapAttributeValueToEntity,
 } from '../../utils';
@@ -192,6 +193,10 @@ export class DocumentsService implements IDocumentsService {
 
           if (existingAttributeField.document.id !== documentId) {
             throw new Error('Attribute field does not belong to this document');
+          }
+
+          if (!isAttributeValueValid(attribute.value, attribute.type)) {
+            throw new Error('Attribute field value must have the same type');
           }
 
           await this.databaseService.client
