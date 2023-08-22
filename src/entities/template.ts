@@ -19,7 +19,6 @@ export class Template {
   @ManyToMany(
     () => TemplateAttributeField,
     (templateAttributeField) => templateAttributeField.templates,
-    { eager: true },
   )
   @JoinTable()
   attributeFields: TemplateAttributeField[];

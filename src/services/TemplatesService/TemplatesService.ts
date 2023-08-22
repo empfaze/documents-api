@@ -12,7 +12,11 @@ export class TemplatesService implements ITemplatesService {
   ) {}
 
   read(): Promise<Template[]> {
-    return this.databaseService.client.getRepository(Template).find();
+    return this.databaseService.client.getRepository(Template).find({
+      relations: {
+        attributeFields: true,
+      },
+    });
   }
 
   async create({ name, attributeFields }: TemplateDto): Promise<Template> {

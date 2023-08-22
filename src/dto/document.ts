@@ -100,3 +100,24 @@ export class UpdateDocumentDto {
   @Type(() => UpdateDocumentAttributeField)
   attributeFields?: UpdateDocumentAttributeField[];
 }
+
+interface TemplateResponse {
+  id: number;
+  name: string;
+}
+
+interface AttributeFieldResponse {
+  id: number;
+  name: string;
+  value: string | number | Date;
+}
+
+export class ResponseDocumentDto {
+  id: number;
+
+  name: string;
+
+  template: TemplateResponse;
+
+  attributeFields: AttributeFieldResponse[];
+}

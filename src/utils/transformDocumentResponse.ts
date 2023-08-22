@@ -1,18 +1,15 @@
+import { ResponseDocumentDto } from '../dto';
 import { Document } from '../entities';
 
-export const transformDocumentResponse = (document: Partial<Document>) => {
-  const transformedDocument = {
-    ...document,
-    attributeFields: [
-      ...document.dateAttributeFields!,
-      ...document.numberAttributeFields!,
-      ...document.stringAttributeFields!,
-    ],
-  };
-
-  delete transformedDocument.dateAttributeFields;
-  delete transformedDocument.numberAttributeFields;
-  delete transformedDocument.stringAttributeFields;
-
-  return transformedDocument;
-};
+export const transformDocumentResponse = (
+  document: Document,
+): ResponseDocumentDto => ({
+  id: document.id,
+  name: document.name,
+  template: document.template,
+  attributeFields: [
+    ...document.dateAttributeFields!,
+    ...document.numberAttributeFields!,
+    ...document.stringAttributeFields!,
+  ],
+});

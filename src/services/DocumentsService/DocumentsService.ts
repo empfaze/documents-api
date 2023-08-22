@@ -38,6 +38,9 @@ export class DocumentsService implements IDocumentsService {
           where: {
             id: templateId,
           },
+          relations: {
+            attributeFields: true,
+          },
         });
 
       if (!existingTemplate) {
